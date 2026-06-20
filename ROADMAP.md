@@ -4,6 +4,8 @@ A phased path from "knows basic React/JS/HTML/CSS" to "can build and explain a p
 
 Work top to bottom. Don't skip ahead — later phases assume earlier ones are solid, on purpose (e.g. you shouldn't learn Redux before you've felt *why* plain `useState` becomes painful).
 
+> **Note on Phases 11/12**: these got pulled forward and built ahead of Phases 2–8, at the user's explicit request, to get a real deployed URL and CI pipeline early. That's a deliberate, named exception — not a sign the "don't skip ahead" rule stopped applying. Phases 2–8 still need to happen in order before the *next* phase (9, the microfrontend split) makes sense.
+
 Each phase has a goal, what you'll learn, what gets built in this repo, and a check for "am I actually done."
 
 ---
@@ -74,17 +76,18 @@ Each phase has a goal, what you'll learn, what gets built in this repo, and a ch
 - **Build**: `packages/comm-bus/`, `docs/events.md` registry, and a real event — e.g. Marketplace publishes `cart:item-added`, Shell's nav badge subscribes and updates.
 - **Done when**: adding a product to cart in Marketplace updates the Shell's badge with zero direct import between the two apps.
 
-### Phase 11 — CI/CD
-- **Goal**: automate the checks you've been running by hand.
-- **Learn**: GitHub Actions YAML, running lint/type-check/test/build on every push.
-- **Build**: `.github/workflows/ci.yml` per app (see [Architecture.md §9](./Architecture.md#9-cicd-pipeline-outline-roadmap-phase-11)).
-- **Done when**: pushing a commit that fails a test blocks the PR automatically, and a passing `main` commit triggers a build.
+### Phase 11 — CI/CD 🚧 (in progress, out of order — see note below)
+- **Goal**: automate the checks you've been running by hand, using **Jenkins** (swapped in for GitHub Actions — more common in enterprise, stronger resume skill).
+- **Learn**: Docker basics, running Jenkins as a container, Jenkinsfile pipeline-as-code, Jenkins credentials, GitHub/Render/Vercel integration.
+- **Built so far**: `jenkins/Dockerfile` (Jenkins + Node 20) and the `Jenkinsfile` (Checkout → Install → Build → Test-placeholder → Deploy) are written and pushed. Currently blocked on Docker Desktop needing WSL2, which needs a Windows restart to finish enabling — pick this back up once that's done.
+- **Done when**: `docker ps` shows Jenkins running, a manual pipeline run goes green through Install/Build, and a push to `main` triggers it automatically.
 
-### Phase 12 — Deployment
+### Phase 12 — Deployment ✅ (mostly done, ahead of schedule)
 - **Goal**: a real, working URL.
-- **Learn**: deploying a Node API (e.g. Render/Railway), static hosting for frontends (e.g. Vercel/Netlify), environment variables in production.
-- **Build**: deployed backend + Shell + each MFE, with production `MONGO_URI`/CORS config.
-- **Done when**: you can send someone a link and they can actually use the app.
+- **Learn**: deploying a Node API (Render), static hosting for frontends (Vercel), environment variables in production, MongoDB Atlas network access for cloud hosts.
+- **Built**: backend live on Render (`render.yaml`), frontend live on Vercel (`vercel.json` proxies `/api/*` to Render), both auto-deploying on push to `main`, confirmed working end-to-end with real seeded data.
+- **Deferred on purpose**: pointing your own custom domain at these is a 5–10 minute DNS + dashboard change whenever you're ready — it doesn't require touching the app or the pipeline, so there's no cost to doing it later rather than now.
+- **Done when**: ✅ already true — visiting the live Vercel URL shows real Mongo-backed data. What's left for *this* phase is wiring Jenkins's Deploy stage in as the actual trigger (Phase 11), rather than relying solely on Render/Vercel's own auto-deploy.
 
 ---
 

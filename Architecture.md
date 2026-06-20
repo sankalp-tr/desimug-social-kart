@@ -222,23 +222,30 @@ Today, everything still lives under one `src/`. This table is what `src/pages/Ma
 
 ---
 
-## 9. CI/CD pipeline outline (Roadmap Phase 11)
+## 9. CI/CD pipeline (Roadmap Phase 11) + deployment (Phase 12)
 
-**CI (Continuous Integration)** = automatically run checks (lint, type-check, tests, build) on every push/PR, so broken code never reaches `main`. **CD (Continuous Deployment)** = automatically ship a build that passes CI.
+**CI (Continuous Integration)** = automatically run checks (type-check, tests, build) on every push, so broken code is caught before it ships. **CD (Continuous Deployment)** = automatically ship a build that passes CI.
 
-Planned GitHub Actions pipeline:
+We use **Jenkins** rather than GitHub Actions — Jenkins is self-hosted and far more common in enterprise environments, so it's the stronger skill for a job search, even though it takes more setup than a SaaS CI.
+
+**How Jenkins runs**: as a Docker container, not installed directly on the machine — this is the standard, repeatable way teams run it. `jenkins/Dockerfile` starts from the official `jenkins/jenkins:lts-jdk17` image and bakes in Node.js 20, so the pipeline can run `npm`/`npx` build steps directly without the added complexity of spinning up separate Docker-in-Docker build agents.
+
+**The pipeline** (`Jenkinsfile` at the repo root) — five stages:
 
 ```
-on: push / pull_request
-  1. Install deps (npm ci)
-  2. Lint (eslint)
-  3. Type-check (tsc --noEmit)
-  4. Unit tests (frontend: Jest/RTL, backend: Jest/Supertest)
-  5. Build (vite build for each app, once microfrontends exist)
-  6. (main branch only) Deploy: backend → a Node host, frontend(s) → static hosting
+Checkout  → pulls the latest commit from GitHub
+Install   → npm ci (root) and npm ci (server/)
+Build     → tsc --noEmit, then npm run build (vite build)
+Test      → placeholder today; becomes real Jest/RTL + Supertest suites in Phase 8
+Deploy    → curl's the Render + Vercel deploy hooks (Jenkins credentials, never hardcoded)
+            — only runs on the main branch
 ```
 
-Each microfrontend gets its **own** pipeline once split out, so Marketplace can ship without waiting on Feed.
+**Where it deploys to**: Render (backend, `render.yaml`) and Vercel (frontend, `vercel.json`) — both on their free tiers, using the default `*.onrender.com` / `*.vercel.app` subdomains for now. A custom domain can be pointed at either later, purely as a DNS + dashboard change — it doesn't touch the app or this pipeline at all, which is why it's deferred rather than done upfront.
+
+**A real nuance worth knowing**: Render and Vercel both already auto-deploy on every push to `main` by default, independent of Jenkins. That means right now the Jenkins "Deploy" stage is somewhat redundant with the platforms' own behavior. In a more mature setup, you'd turn **off** each platform's auto-deploy and let only a green Jenkins build trigger the deploy hook — that way a build that fails Install/Build/Test can never reach production. We're keeping both platforms' auto-deploy on for now since this is a learning project, but it's the kind of detail worth fixing once Phase 8 gives the pipeline real tests to gate on.
+
+Each microfrontend gets its **own** pipeline stage (or its own Jenkins job) once split out in Phase 9, so Marketplace can ship without waiting on Feed.
 
 ---
 
@@ -259,6 +266,7 @@ Each microfrontend gets its **own** pipeline once split out, so Marketplace can 
 | Auth | JWT | Stateless tokens carrying the user's role for RBAC |
 | Microfrontends | Vite Module Federation | Runtime composition of independently-built apps |
 | Cross-MFE messaging | commBus (CustomEvent-based pub/sub) | Decoupled communication without shared imports |
-| CI/CD | GitHub Actions | Free, tightly integrated with GitHub repos |
+| CI/CD | Jenkins (in Docker) | Self-hosted, industry-standard, strong resume skill |
+| Deployment | Render (backend) + Vercel (frontend) | Generous free tiers, simple Git-connected deploys |
 
 See [ROADMAP.md](./ROADMAP.md) for the order in which all of this gets built.
