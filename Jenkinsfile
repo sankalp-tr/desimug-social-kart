@@ -33,7 +33,10 @@ pipeline {
     }
 
     stage('Deploy') {
-      when { branch 'main' }
+      // No `when { branch 'main' }` here: this job is a plain Pipeline
+      // (not Multibranch) configured to only ever check out main, and
+      // BRANCH_NAME is only populated by Multibranch jobs - the check
+      // would silently always evaluate false and skip this stage.
       environment {
         RENDER_DEPLOY_HOOK = credentials('render-deploy-hook')
         VERCEL_DEPLOY_HOOK = credentials('vercel-deploy-hook')
