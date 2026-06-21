@@ -1,31 +1,5 @@
 import { useEffect, useState } from 'react';
-
-type Seller = {
-  _id: string;
-  name: string;
-  role: string;
-};
-
-type Product = {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl?: string;
-  category: string;
-  stock: number;
-  seller: Seller;
-};
-
-type ProductFormData = {
-  name: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  category: string;
-  stock: string;
-  seller: string;
-};
+import type { Seller, Product, ProductFormData } from '../types';
 
 const emptyForm: ProductFormData = {
   name: '',

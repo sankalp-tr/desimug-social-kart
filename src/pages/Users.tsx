@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
-type User = {
-    _id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-    role: string;
-    createdAt?: string;
-};
+import type { User } from '../types';
 
 const Users: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
