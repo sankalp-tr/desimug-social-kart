@@ -1,3 +1,4 @@
+const path = require('path');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 // This definition is the "shell" of the docs (title, version, server URL).
@@ -105,7 +106,9 @@ const options = {
       },
     },
   },
-  apis: ['./routes/*.js'],
+  // glob patterns need forward slashes even on Windows - path.join's
+  // backslashes get misread as escape characters, not separators.
+  apis: [path.join(__dirname, '../routes/*.js').split(path.sep).join('/')],
 };
 
 module.exports = swaggerJsdoc(options);

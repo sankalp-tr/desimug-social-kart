@@ -1,7 +1,7 @@
 require('dotenv').config();
-const connectDB = require('./db/connection');
-const User = require('./models/User');
-const Product = require('./models/Product');
+const connectDB = require('../src/config/db');
+const User = require('../src/models/User');
+const Product = require('../src/models/Product');
 
 const seedMoreProducts = async () => {
   await connectDB();
