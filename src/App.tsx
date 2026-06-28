@@ -1,27 +1,24 @@
 import { useState } from 'react';
-import './index.css';
+import './index.scss';
 import { APP_TITLE, APP_SUBTITLE } from './constants';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import MyFeed from './pages/MyFeed';
 import Market from './pages/Market';
 import Users from './pages/Users';
+import DesiHeader from './components/Header';
+import { HeaderContextProvider } from './context/HeaderContext';
 
 export default function App() {
 
   return (
     <>
+    <HeaderContextProvider>
     <main className='app'>
       <BrowserRouter>
-      <header>
-        <nav>
-          <NavLink to='/'>Home</NavLink>&nbsp;|&nbsp;
-          <NavLink to='/my-feed'>My Feed</NavLink>&nbsp;|&nbsp;
-          <NavLink to='/market'>Market Place</NavLink>&nbsp;|&nbsp;
-          <NavLink to='/users'>Users</NavLink>&nbsp;|&nbsp;
-          <NavLink to='/tutorials'>Tutorials</NavLink>
-        </nav>
-      </header>
+      
+        <DesiHeader />
+
         <Routes>
           <Route path='' element={<Home />} />
           <Route path='my-feed' element={<MyFeed />} />
@@ -30,6 +27,7 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </main>
+    </HeaderContextProvider>
   </>
   );
 }
